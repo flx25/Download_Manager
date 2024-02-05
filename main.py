@@ -1,8 +1,11 @@
-download_list = []
-
 import requests
 from concurrent.futures import ThreadPoolExecutor
 import re
+import threading
+
+download_list = []
+currently_downloading=[]
+currently_downloading_lock = threading.Lock()
 
 def extract_numbers(command):
 	numbers = re.findall(r'\d+', command)
@@ -40,8 +43,12 @@ def main_loop():
 		print ("Files in List:")
 		for index, item in enumerate(download_list):
 			print(f"{index + 1}. {item}")
-		print("")
-	user_input = input("Enter URLS you want to add, exit to quit and rm <numbers> seperated by spaces to remove one or multiple entries, use clear to clear the list, with start you can download all files. \nWith start <numbers> seperated by spaces you can download one or multiple files, start without argument downloads all files on the list.\n")
+	with currently_downloading_lock:
+		if currently_downloading:
+			print ("Currently downloading:")
+			for index, item in enumerate(currently_downloading):
+				print(f"{index + 1}. {item}")
+	user_input = input("Enter the URLS you want to add, rm removes one or more urls, start starts all or specified downloads, clear clears the download list, refresh refreshes the current downloads, exit closes the programm.\n")
 	return user_input
 
 if __name__ == "__main__":
@@ -65,9 +72,21 @@ if __name__ == "__main__":
 		elif result.lower() == 'clear':
 			download_list.clear()
 			print("Your list has been cleared.")
-		elif (result.lower().startswith('start')):
-			numbers = extract_numbers(result)
+		elif result.lower().startswith('start'):
+			numbers = sorted(extract_numbers(result), reverse=False)
 			print (numbers)
+			with currently_downloading_lock:
+				for index in numbers:
+					if index <= len(download_list):
+						currently_downloading.append(download_list[index -1])
+			numbers = sorted(numbers,reverse=True)
+			for number in numbers:
+				if number <= len(download_list):
+					download_list.pop(number-1)
+
+
+
+
 		elif check_url(result):
 			download_list.append(result)
 
