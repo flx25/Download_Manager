@@ -1,1 +1,1 @@
-A simple download Manager i build in python, using my to-do-list application as a basis. 
+A simple Download Manager i build in python, using my to-do-list application as a basis. 
