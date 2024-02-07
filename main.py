@@ -7,13 +7,13 @@ import os
 download_list = []
 
 def get_filename(link):
-		index = link.rfind("/") + 1
-		if (index != -1):
-			substring = link[index:]
-			return substring
-		else:
-			user_input = input(f"Enter the name for your download from {link}: ")
-			return user_input
+	index = link.rfind("/") + 1
+	if (index != -1):
+		substring = link[index:]
+		return substring
+	else:
+		user_input = input(f"Enter the name for your download from {link}: ")
+		return user_input
 
 
 def extract_numbers(command):
